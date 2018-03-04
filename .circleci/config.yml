@@ -30,6 +30,11 @@ jobs:
           paths:
             - ./node_modules
       - run:
+          name: "install code climate"
+          command: |
+            curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+            chmod +x ./cc-test-reporter
+      - run:
           name: test
           command: |
             # Prepare the test reporter
