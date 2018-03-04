@@ -1,0 +1,67 @@
+# Javascript Node CircleCI 2.0 configuration file
+#
+# Check https://circleci.com/docs/2.0/language-javascript/ for more details
+#
+version: 2
+jobs:
+  build:
+    environment:
+      CC_TEST_REPORTER_ID: f303f170b03011538f4d64680a4385bda34f214bff04bb9a7f004ae72fc987c7
+    docker:
+      - image: node:8.4
+    working_directory: ~/tag-messageformat-parser
+    steps:
+      - checkout
+      - run:
+          name: "~/.npmrc"
+          command: echo "//registry.npmjs.org/:_authToken=$NPM_TOKEN" >> ~/.npmrc
+      - run:
+          name: "Checking Versions"
+          command: |
+            node --version
+            npm --version
+      - restore_cache:
+          key: dependency-cache-{{ checksum "package.json" }}
+      - run:
+          name: "npm install"
+          command: npm install
+      - save_cache:
+          key: dependency-cache-{{ checksum "package.json" }}
+          paths:
+            - ./node_modules
+      - run:
+          name: test
+          command: |
+            # Prepare the test reporter
+            ./cc-test-reporter before-build
+
+            # Run the tests
+            npm run test:ci
+            COVERAGE_EXIT_CODE=$?
+
+            # Prevent errors when re-building on the CI server (reports previously uploaded)
+            set +e
+            ./cc-test-reporter after-build -t lcov --exit-code $COVERAGE_EXIT_CODE
+            REPORTER_EXIT_CODE=$?
+            set -e
+            if [ "$REPORTER_EXIT_CODE" != "0" ] && [ "$REPORTER_EXIT_CODE" != "255" ]; then
+              exit $$REPORTER_EXIT_CODE
+            fi
+      - store_test_results:
+          path: ./coverage/test-report.xml
+      - store_artifacts:
+          path: ./coverage
+          prefix: "coverage"
+      - deploy:
+          name: Maybe Deploy
+          command: |
+            if [ "${CIRCLE_BRANCH}" == "master" ]; then
+              git config -l
+              git config user.email ci@circleci
+              git config user.name CircleCI
+
+              # Tag the release, update package.json version and changelog, commit and push to github.
+              ./node_modules/.bin/standard-version --no-verify -m "chore(release): %s. [skip ci]"
+              git push --follow-tags origin master
+              npm publish
+            fi

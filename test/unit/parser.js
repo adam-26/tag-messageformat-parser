@@ -393,6 +393,22 @@ describe('parse()', function () {
             expect(options[1].value.elements[0].value).to.equal('man');
             expect(options[2].value.elements[0].value).to.equal('person');
         });
+
+        it('should accept an empty `other` option', function () {
+            var msg = '{gender, select, female {woman} male {man} other {}}';
+            var ast = parse(msg);
+            var options = ast.elements[0].format.options;
+
+            expect(options[2].selector).to.equal('other');
+            expect(options[2].value.elements.length).to.equal(0);
+        });
+    });
+
+    describe('parse("{gender, select, female {woman} male {man}}")', function () {
+        it('should throw an error when missing an "other" option', function () {
+            var msg = '{gender, select, female {woman} male {man}}';
+            expect(parse).withArgs(msg).to.throwException();
+        });
     });
 
     describe('whitespace', function () {
@@ -411,6 +427,13 @@ describe('parse()', function () {
             expect(element.format.type).to.equal('numberFormat');
             expect(element.format.style).to.equal('percent');
         });
+
+        it('should preserve whitespace in plurals', function () {
+            var msg = '{total, plural, =0{} =1{ / #} other{}}';
+            var ast = parse(msg);
+            var element = ast.elements[0].format.options[1].value.elements[0];
+            expect(element.value).to.equal(' / #');
+        });
     });
 
     describe('escaping', function () {
@@ -418,6 +441,7 @@ describe('parse()', function () {
             expect(parse('\\{').elements[0].value).to.equal('{');
             expect(parse('\\}').elements[0].value).to.equal('}');
             expect(parse('\\u003C').elements[0].value).to.equal('<');
+            expect(parse('\\<').elements[0].value).to.equal('<');
 
             // Escaping "#" needs to be special-cased so it remains escaped so
             // the runtime doesn't replace it when in a `pluralFormat` option.
@@ -427,6 +451,162 @@ describe('parse()', function () {
         it('should allow backslash chars in `messageTextElement`s', function () {
             expect(parse('\\u005c').elements[0].value).to.equal('\\');
             expect(parse('\\\\').elements[0].value).to.equal('\\');
+        });
+    });
+
+    describe('argument and tag names', function () {
+        it('should allow `.` in name, but not in first or last position', function () {
+            expect(parse('{a.b}').elements[0].id).to.equal('a.b');
+            expect(parse).withArgs('{.a}').to.throwException();
+            expect(parse).withArgs('{a.}').to.throwException();
+
+            expect(parse('<x:a.b>a</x:a.b>').elements[0].name).to.equal('a.b');
+            expect(parse).withArgs('<x:.b>a</x:.b>').to.throwException();
+            expect(parse).withArgs('<x:a.>a</x:a.>').to.throwException();
+
+            expect(parse('<x:a.b />').elements[0].name).to.equal('a.b');
+            expect(parse).withArgs('<x:.b />').to.throwException();
+            expect(parse).withArgs('<x:a. />').to.throwException();
+        });
+    });
+
+    describe('parse("hello <x:0>bob</x:0> welcome<x:1/>")', function () {
+        var msg = 'hello <x:0>bob</x:0> welcome<x:1/>';
+        var ast = parse(msg);
+
+        it('should contain 4 `elements`', function () {
+            expect(ast.elements).to.have.length(4);
+            expect(ast.elements[0].type).to.equal("messageTextElement");
+            expect(ast.elements[1].type).to.equal("tagElement");
+            expect(ast.elements[2].type).to.equal("messageTextElement");
+            expect(ast.elements[3].type).to.equal("selfClosingTagElement");
+        });
+
+        it('should contain a numbered `tagElement`', function () {
+            var element = ast.elements[1];
+            expect(element.type).to.equal("tagElement");
+            expect(element.name).to.equal("0");
+            expect(element.value.type).to.equal("messageFormatPattern");
+            expect(element.value.elements).to.have.length(1);
+            expect(element.value.elements[0].type).to.equal("messageTextElement");
+            expect(element.value.elements[0].value).to.equal("bob");
+        });
+
+        it('should contain a `messageTextElement`', function () {
+            var element = ast.elements[2];
+            expect(element.type).to.equal("messageTextElement");
+            expect(element.value).to.equal(" welcome");
+        });
+
+        it('should contain a numbered `selfClosingTagElement`', function () {
+            var element = ast.elements[3];
+            expect(element.type).to.equal("selfClosingTagElement");
+            expect(element.name).to.equal("1");
+        });
+    });
+
+    describe('parse("hello <x:name>\\<bob></x:name> welcome<x:emoji/>")', function () {
+        var msg = 'hello <x:name>\\<bob></x:name> welcome<x:emoji/>';
+        var ast = parse(msg);
+
+        it('should contain 4 `elements`', function () {
+            expect(ast.elements).to.have.length(4);
+            expect(ast.elements[0].type).to.equal("messageTextElement");
+            expect(ast.elements[1].type).to.equal("tagElement");
+            expect(ast.elements[2].type).to.equal("messageTextElement");
+            expect(ast.elements[3].type).to.equal("selfClosingTagElement");
+        });
+
+        it('should contain a named`tagElement`', function () {
+            var element = ast.elements[1];
+            expect(element.type).to.equal("tagElement");
+            expect(element.name).to.equal("name");
+            expect(element.value.type).to.equal("messageFormatPattern");
+            expect(element.value.elements).to.have.length(1);
+            expect(element.value.elements[0].type).to.equal("messageTextElement");
+            expect(element.value.elements[0].value).to.equal("<bob>");
+        });
+
+        it('should contain a `messageTextElement`', function () {
+            var element = ast.elements[2];
+            expect(element.type).to.equal("messageTextElement");
+            expect(element.value).to.equal(" welcome");
+        });
+
+        it('should contain a named `selfClosingTagElement`', function () {
+            var element = ast.elements[3];
+            expect(element.type).to.equal("selfClosingTagElement");
+            expect(element.name).to.equal("emoji");
+        });
+    });
+
+    describe('parse("hello <x:highlight>{name}</x:highlight> welcome<x:emoji/>")', function () {
+        var msg = 'hello <x:highlight>{name}</x:highlight> welcome<x:emoji/>';
+        var ast = parse(msg);
+
+        it('should contain 4 `elements`', function () {
+            expect(ast.elements).to.have.length(4);
+            expect(ast.elements[0].type).to.equal("messageTextElement");
+            expect(ast.elements[1].type).to.equal("tagElement");
+            expect(ast.elements[2].type).to.equal("messageTextElement");
+            expect(ast.elements[3].type).to.equal("selfClosingTagElement");
+        });
+
+        it('should contain a named`tagElement`', function () {
+            var element = ast.elements[1];
+            expect(element.type).to.equal("tagElement");
+            expect(element.name).to.equal("highlight");
+            expect(element.value.type).to.equal("messageFormatPattern");
+            expect(element.value.elements).to.have.length(1);
+            expect(element.value.elements[0].type).to.equal("argumentElement");
+            expect(element.value.elements[0].id).to.equal("name");
+        });
+
+        it('should contain a `messageTextElement`', function () {
+            var element = ast.elements[2];
+            expect(element.type).to.equal("messageTextElement");
+            expect(element.value).to.equal(" welcome");
+        });
+
+        it('should contain a named `selfClosingTagElement`', function () {
+            var element = ast.elements[3];
+            expect(element.type).to.equal("selfClosingTagElement");
+            expect(element.name).to.equal("emoji");
+        });
+    });
+
+    describe('parse("<x:link>click <x:important>here</x:important> to continue</x:link>")', function () {
+        var msg = '<x:link>click <x:important>here</x:important> to continue</x:link>';
+        var ast = parse(msg);
+
+        it('should contain 1 `element`', function () {
+            expect(ast.elements).to.have.length(1);
+        });
+
+        it('should contain a `tagElement`', function () {
+            var element = ast.elements[0];
+            expect(element.type).to.equal("tagElement");
+            expect(element.name).to.equal("link");
+            expect(element.value.type).to.equal("messageFormatPattern");
+            expect(element.value.elements).to.have.length(3);
+            expect(element.value.elements[0].type).to.equal("messageTextElement");
+            expect(element.value.elements[0].value).to.equal("click ");
+            expect(element.value.elements[1].type).to.equal("tagElement");
+            expect(element.value.elements[1].name).to.equal("important");
+            expect(element.value.elements[1].value.type).to.equal("messageFormatPattern");
+            expect(element.value.elements[1].value.elements).to.have.length(1);
+            expect(element.value.elements[1].value.elements[0].type).to.equal("messageTextElement");
+            expect(element.value.elements[1].value.elements[0].value).to.equal("here");
+            expect(element.value.elements[2].type).to.equal("messageTextElement");
+            expect(element.value.elements[2].value).to.equal(" to continue");
+        });
+    });
+
+    describe('parse("<x:hello>error</x:world>")', function () {
+        var msg = '<x:hello>error</x:world>';
+
+        it('should throw an error', function () {
+            expect(parse).withArgs(msg).to.throwException();
         });
     });
 });

@@ -2,3 +2,9 @@ coverage/
 test/
 tmp/
 Gruntfile.js
+npm-shrinkwrap.json
+.circleci/
+.codeclimate.yml
+npm-shrinkwrap.json
+package-lock.json
+yarn.lock

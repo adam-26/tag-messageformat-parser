@@ -1,0 +1,29 @@
+
+engines:
+
+  fixme:
+    enabled: true
+
+  nodesecurity:
+    enabled: true
+
+  eslint:
+    enabled: false
+
+  duplication:
+    enabled: false
+
+ratings:
+  paths:
+  - "src/**/*"
+  - "**.js"
+
+exclude_paths:
+- "lib/**/*"
+- "dist/**/*"
+- "tmp/**/*"
+- "coverage/**/*"
+- "test/**/*"
+- "src/**/*"
+- "Gruntfile.js"
+- "index.js"
