@@ -1,16 +1,17 @@
 {
-  "name": "intl-messageformat-parser",
+  "name": "tag-messageformat-parser",
   "version": "1.4.0",
   "description": "Parses ICU Message strings into an AST via JavaScript.",
   "main": "index.js",
   "jsnext:main": "src/parser.js",
   "scripts": {
     "test": "istanbul cover -- _mocha test/unit/ --reporter spec",
+    "test:ci": "istanbul cover -- _mocha test/unit/ --reporter xunit --reporter-options output=coverage/test-report.xml",
     "prepublish": "grunt"
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/yahoo/intl-messageformat-parser.git"
+    "url": "git://github.com/adam-26/tag-messageformat-parser.git"
   },
   "keywords": [
     "i18n",
@@ -26,9 +27,9 @@
   "author": "Eric Ferraiuolo <eferraiuolo@gmail.com>",
   "license": "BSD-3-Clause",
   "bugs": {
-    "url": "https://github.com/yahoo/intl-messageformat-parser/issues"
+    "url": "https://github.com/adam-26/tag-messageformat-parser/issues"
   },
-  "homepage": "https://github.com/yahoo/intl-messageformat-parser",
+  "homepage": "https://github.com/adam-26/tag-messageformat-parser",
   "devDependencies": {
     "expect.js": "^0.3.1",
     "grunt": "^0.4.5",

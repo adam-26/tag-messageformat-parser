@@ -1,12 +1,61 @@
-Intl MessageFormat Parser
+Tag MessageFormat Parser
 =========================
 
-Parses [ICU Message strings][ICU] into an AST via JavaScript.
+Parses [ICU Message strings][ICU] into an AST via JavaScript, with added support for tags.
 
-[![npm Version][npm-badge]][npm]
-[![Build Status][travis-badge]][travis]
-[![Dependency Status][david-badge]][david]
+[![npm](https://img.shields.io/npm/v/tag-messageformat-parser.svg)](https://www.npmjs.com/package/tag-messageformat-parser)
+[![npm](https://img.shields.io/npm/dm/tag-messageformat-parser.svg)](https://www.npmjs.com/package/tag-messageformat-parser)
+[![CircleCI branch](https://img.shields.io/circleci/project/github/adam-26/intl-messageformat-parser/master.svg)](https://circleci.com/gh/adam-26/intl-messageformat-parser/tree/master)
+[![Maintainability](https://api.codeclimate.com/v1/badges/ad62f24a1337d30759a1/maintainability)](https://codeclimate.com/github/adam-26/intl-messageformat-parser/maintainability)
+[![Test Coverage](https://api.codeclimate.com/v1/badges/ad62f24a1337d30759a1/test_coverage)](https://codeclimate.com/github/adam-26/intl-messageformat-parser/test_coverage)
+[![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-yellow.svg)](https://conventionalcommits.org)
 
+> This is a fork of [intl-messageformat-parser](https://github.com/yahoo/intl-messageformat-parser)
+
+_Differences_ from the original package:
+ * `Tags` are supported in messages - this is **not** part of the ICU message "spec"
+ * The `other` option is **required** for `plural`, `select` and `selectordinal` as is required by other ICU parsers
+ * Whitespace in `plural` messages is preserved
+ * `.` is permitted to be used in argument and tag names
+
+What is a tag?
+--------
+A `tag` enables style _placeholders_ to be included in the translation message _without_ including any of the
+style information in the translation message.
+
+This provides 3 benefits:
+  1. It decouples the styling of the text from the translations, allowing the styling to change independently of translations.
+  2. It allows translation messages to retain context for text that will be styled
+  3. Tags can be named to provide _hints_ to translators
+
+A tag **must** adhere to the following conventions:
+ * begin with `<x:`
+ * The tag name can include only numbers, ascii letters, underscore and dot `.`.
+ * must be closed, self-closing tags are supported but should be used sparingly as they can be confusing for translators
+ * Valid tag examples:
+   * `<x:0>hello</x:0>`
+   * `<x:link>click me</x:link>`
+   * `<x:emoji />`
+
+Here's an _simple_ example:
+
+```js
+var parser = require('tag-messageformat-parser');
+
+parser.parse('By signing up you agree to our <x:link>terms and conditions</x:link>');
+
+```
+
+Using **descriptive names** for tag names can provide hints to translators about the purpose of the tags.
+In the above example, the text `terms and conditions` will be used to display a link the user can click on.
+
+Tags and arguments can be used in combination in ICU message formats.
+
+This example uses a `{name}` argument in a tag.
+
+```js
+parser.parse('Welcome back <x:bold>{name}</x:bold>');
+```
 
 Overview
 --------
@@ -29,7 +78,7 @@ Usage
 The `dist/` folder contains the version of this package for use in the browser, and it can be loaded and used like this:
 
 ```html
-<script src="intl-messageformat-parser/dist/parser.min.js"></script>
+<script src="tag-messageformat-parser/dist/parser.min.js"></script>
 <script>
     IntlMessageFormatParser.parse('...');
 </script>
@@ -40,7 +89,7 @@ The `dist/` folder contains the version of this package for use in the browser, 
 This package can also be `require()`-ed in Node.js:
 
 ```js
-var parser = require('intl-messageformat-parser');
+var parser = require('tag-messageformat-parser');
 parser.parse('...');
 ```
 
@@ -151,16 +200,3 @@ License
 
 This software is free to use under the Yahoo! Inc. BSD license.
 See the [LICENSE file][] for license text and copyright information.
-
-
-[npm]: https://www.npmjs.org/package/intl-messageformat-parser
-[npm-badge]: https://img.shields.io/npm/v/intl-messageformat-parser.svg?style=flat-square
-[david]: https://david-dm.org/yahoo/intl-messageformat-parser
-[david-badge]: https://img.shields.io/david/yahoo/intl-messageformat-parser.svg?style=flat-square
-[travis]: https://travis-ci.org/yahoo/intl-messageformat-parser
-[travis-badge]: https://img.shields.io/travis/yahoo/intl-messageformat-parser.svg?style=flat-square
-[ICU]: http://userguide.icu-project.org/formatparse/messages
-[intl-mf]: https://github.com/yahoo/intl-messageformat
-[PEG.js]: http://pegjs.majda.cz
-[messageformat.js]: https://github.com/SlexAxton/messageformat.js
-[LICENSE file]: https://github.com/yahoo/intl-messageformat-parser/blob/master/LICENSE

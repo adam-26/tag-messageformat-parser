@@ -1,4 +1,31 @@
 /*
+Extends the ICU format with support for named 'tags'
+Named tags allow translators to infer what
+translated content will be styled without having to
+be concerned with what that style/markdown is.
+
+This approach ensure the styles applied to any translated
+content can be changed without impacting the translated content.
+
+All tags MUST be assigned a name, use the name to
+hint to the translator what style(s) will be applied
+to the text.
+
+A name CAN be a number, but this is primarily intended to
+support use-cases where code generation (ie: babel plugins)
+is used to define the message descriptors.
+
+All tags must use the following syntax:
+ - opening tag: <x:NAME>
+ - closing tag: </x:NAME>
+ - self-closing tag: <x:NAME />
+
+It's not recommended to use self-closing tags,
+they lack context for translators.
+*/
+
+/*
+Extends: https://github.com/yahoo/intl-messageformat-parser/blob/master/src/parser.pegjs
 Copyright 2014, Yahoo! Inc. All rights reserved.
 Copyrights licensed under the New BSD License.
 See the accompanying LICENSE file for terms.
@@ -26,6 +53,8 @@ messageFormatPattern
 messageFormatElement
     = messageTextElement
     / argumentElement
+    / tagElement
+    / selfClosingTag
 
 messageText
     = text:(_ chars _)+ {
@@ -53,9 +82,56 @@ messageTextElement
         };
     }
 
+// --- Tags ---
+tagElement =
+  startTag:startTag content:messageFormatPattern endTag:endTag {
+    if (startTag.name != endTag.name) {
+      throw new Error(
+        "Expected </x:" + startTag.name + "> but </x:" + endTag.name + "> found."
+      );
+    }
+
+    return {
+      type: 'tagElement',
+      name: startTag.name,
+      value: content,
+    };
+  }
+
+startTag =
+  "<x:" name:tagName ">" {
+    return { name: name };
+  }
+
+endTag =
+  "</x:" name:tagName ">" {
+    return { name: name };
+  }
+
+selfClosingTag = "<x:" name:tagName _"/>" {
+  return {
+    type: "selfClosingTagElement",
+    name: name,
+  }
+}
+
+tagName = chars:$([_a-zA-Z0-9][._a-zA-Z0-9]*) {
+    if (chars[chars.length - 1] === ".") {
+      throw new Error('tag name "<x:' + chars + '>" can not end in "."');
+    }
+
+    return chars;
+  }
+
+// --- Arguments ---
 argument
-    = number
-    / $([^ \t\n\r,.+={}#]+)
+    = id:(number
+    / $([^ \t\n\r,.+={}#][^ \t\n\r,+={}#]*)) {
+      if (id[id.length - 1] === '.') {
+        throw new Error('argument id "' + id + '" can not end in "."');
+      }
+      return id;
+    }
 
 argumentElement
     = '{' _ id:argument _ format:(',' _ elementFormat)? _ '}' {
@@ -68,10 +144,29 @@ argumentElement
     }
 
 elementFormat
-    = simpleFormat
+    = element:(simpleFormat
     / pluralFormat
     / selectOrdinalFormat
-    / selectFormat
+    / selectFormat) {
+      if (typeof element.options === 'undefined') {
+        return element;
+      }
+
+      var hasOther = false;
+      var options = element.options;
+	  for (var i = 0, len = options.length; i < len; i++) {
+	    if (options[i].type === "optionalFormatPattern" && options[i].selector === "other") {
+	  	  hasOther = true;
+	  	  break;
+	    }
+	  }
+
+	  if (!hasOther) {
+	    throw new Error('U_DEFAULT_KEYWORD_MISSING: "' + element.type + '" requires an "other" option.');
+	  }
+
+      return element;
+    }
 
 simpleFormat
     = type:('number' / 'date' / 'time') _ style:(',' _ chars)? {
@@ -118,7 +213,7 @@ selector
     / chars
 
 optionalFormatPattern
-    = _ selector:selector _ '{' _ pattern:messageFormatPattern _ '}' {
+    = _ selector:selector _ '{' pattern:messageFormatPattern '}' {
         return {
             type    : 'optionalFormatPattern',
             selector: selector,
@@ -155,11 +250,12 @@ number = digits:('0' / $([1-9] digit*)) {
 }
 
 char
-    = [^{}\\\0-\x1F\x7f \t\n\r]
+    = [^<{}\\\0-\x1F\x7f \t\n\r]
     / '\\\\' { return '\\'; }
     / '\\#'  { return '\\#'; }
     / '\\{'  { return '\u007B'; }
     / '\\}'  { return '\u007D'; }
+    / '\\<'  { return '\u003C'; }
     / '\\u'  digits:$(hexDigit hexDigit hexDigit hexDigit) {
         return String.fromCharCode(parseInt(digits, 16));
     }
