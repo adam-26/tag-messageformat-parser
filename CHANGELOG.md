@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="2.1.0"></a>
+# [2.1.0](https://github.com/adam-26/tag-messageformat-parser/compare/v2.0.1...v2.1.0) (2018-03-05)
+
+
+### Features
+
+* **code:** Unescaped HTML tags ([8daf9fe](https://github.com/adam-26/tag-messageformat-parser/commit/8daf9fe))
+* **code:** Unescaped HTML tags ([#4](https://github.com/adam-26/tag-messageformat-parser/issues/4)) ([4951580](https://github.com/adam-26/tag-messageformat-parser/commit/4951580))
+
+
+
 <a name="2.0.1"></a>
 ## [2.0.1](https://github.com/adam-26/tag-messageformat-parser/compare/v2.0.0...v2.0.1) (2018-03-04)
 
