@@ -51,10 +51,10 @@ messageFormatPattern
     }
 
 messageFormatElement
-    = messageTextElement
-    / argumentElement
-    / tagElement
+    = tagElement
     / selfClosingTag
+    / messageTextElement
+    / argumentElement
 
 messageText
     = text:(_ chars _)+ {
@@ -134,11 +134,14 @@ argument
     }
 
 argumentElement
-    = '{' _ id:argument _ format:(',' _ elementFormat)? _ '}' {
+    = '{' _ id:argument _ ef:(',' _ elementFormat)? _ '}' {
+        var element = ef && ef[2];
+        var hasOther = (element && typeof element.hasOther === 'boolean') ? element.hasOther : false;
         return {
             type  : 'argumentElement',
             id    : id,
-            format: format && format[2],
+            hasOther: hasOther,
+            format: element && element.format,
             location: location()
         };
     }
@@ -149,7 +152,7 @@ elementFormat
     / selectOrdinalFormat
     / selectFormat) {
       if (typeof element.options === 'undefined') {
-        return element;
+        return { format: element };
       }
 
       var hasOther = false;
@@ -161,11 +164,7 @@ elementFormat
 	    }
 	  }
 
-	  if (!hasOther) {
-	    throw new Error('U_DEFAULT_KEYWORD_MISSING: "' + element.type + '" requires an "other" option.');
-	  }
-
-      return element;
+      return { format: element, hasOther: hasOther };
     }
 
 simpleFormat
@@ -250,12 +249,13 @@ number = digits:('0' / $([1-9] digit*)) {
 }
 
 char
-    = [^<{}\\\0-\x1F\x7f \t\n\r]
+    =
+    (!('<x:' / '</x:')) // don't match prefix <x: or </x:
+    validChars:[^{}\\\0-\x1F\x7f \t\n\r] { return validChars; }
     / '\\\\' { return '\\'; }
     / '\\#'  { return '\\#'; }
     / '\\{'  { return '\u007B'; }
     / '\\}'  { return '\u007D'; }
-    / '\\<'  { return '\u003C'; }
     / '\\u'  digits:$(hexDigit hexDigit hexDigit hexDigit) {
         return String.fromCharCode(parseInt(digits, 16));
     }

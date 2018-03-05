@@ -402,12 +402,17 @@ describe('parse()', function () {
             expect(options[2].selector).to.equal('other');
             expect(options[2].value.elements.length).to.equal(0);
         });
+
+        it('should include "hasOther: true" when an "other" option is defined', function () {
+            var msg = '{gender, select, female {woman} male {man} other {}}';
+            expect(parse(msg).elements[0].hasOther).to.equal(true);
+        });
     });
 
     describe('parse("{gender, select, female {woman} male {man}}")', function () {
-        it('should throw an error when missing an "other" option', function () {
+        it('should include "hasOther: false" when missing an "other" option', function () {
             var msg = '{gender, select, female {woman} male {man}}';
-            expect(parse).withArgs(msg).to.throwException();
+            expect(parse(msg).elements[0].hasOther).to.equal(false);
         });
     });
 
@@ -441,7 +446,6 @@ describe('parse()', function () {
             expect(parse('\\{').elements[0].value).to.equal('{');
             expect(parse('\\}').elements[0].value).to.equal('}');
             expect(parse('\\u003C').elements[0].value).to.equal('<');
-            expect(parse('\\<').elements[0].value).to.equal('<');
 
             // Escaping "#" needs to be special-cased so it remains escaped so
             // the runtime doesn't replace it when in a `pluralFormat` option.
@@ -451,6 +455,10 @@ describe('parse()', function () {
         it('should allow backslash chars in `messageTextElement`s', function () {
             expect(parse('\\u005c').elements[0].value).to.equal('\\');
             expect(parse('\\\\').elements[0].value).to.equal('\\');
+        });
+
+        it('should accept html markup in `messageTextElement`s', function () {
+            expect(parse('<b>hello</b>').elements[0].value).to.equal('<b>hello</b>');
         });
     });
 
@@ -505,8 +513,8 @@ describe('parse()', function () {
         });
     });
 
-    describe('parse("hello <x:name>\\<bob></x:name> welcome<x:emoji/>")', function () {
-        var msg = 'hello <x:name>\\<bob></x:name> welcome<x:emoji/>';
+    describe('parse("hello <x:name><bob></x:name> welcome<x:emoji/>")', function () {
+        var msg = 'hello <x:name><bob></x:name> welcome<x:emoji/>';
         var ast = parse(msg);
 
         it('should contain 4 `elements`', function () {
