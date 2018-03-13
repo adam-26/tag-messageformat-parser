@@ -2,6 +2,18 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="2.2.0"></a>
+# [2.2.0](https://github.com/adam-26/tag-messageformat-parser/compare/v2.1.0...v2.2.0) (2018-03-13)
+
+
+### Features
+
+* **build:** Move repository ([5a33a44](https://github.com/adam-26/tag-messageformat-parser/commit/5a33a44))
+* **release:** Change browser package name ([bcb65eb](https://github.com/adam-26/tag-messageformat-parser/commit/bcb65eb))
+* **release:** Change browser package name ([#1](https://github.com/adam-26/tag-messageformat-parser/issues/1)) ([73b4112](https://github.com/adam-26/tag-messageformat-parser/commit/73b4112))
+
+
+
 <a name="2.1.0"></a>
 # [2.1.0](https://github.com/adam-26/tag-messageformat-parser/compare/v2.0.1...v2.1.0) (2018-03-05)
 
