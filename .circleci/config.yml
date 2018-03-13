@@ -6,7 +6,7 @@ version: 2
 jobs:
   build:
     environment:
-      CC_TEST_REPORTER_ID: f303f170b03011538f4d64680a4385bda34f214bff04bb9a7f004ae72fc987c7
+      CC_TEST_REPORTER_ID: 6615dc82ecec8e2ddf9d9a2d3c36b1b4e40ed6492a2ec4ce6015be60a1afa576
     docker:
       - image: node:8.4
     working_directory: ~/tag-messageformat-parser

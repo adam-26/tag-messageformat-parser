@@ -5,10 +5,11 @@ Parses [ICU Message strings][ICU] into an AST via JavaScript, with added support
 
 [![npm](https://img.shields.io/npm/v/tag-messageformat-parser.svg)](https://www.npmjs.com/package/tag-messageformat-parser)
 [![npm](https://img.shields.io/npm/dm/tag-messageformat-parser.svg)](https://www.npmjs.com/package/tag-messageformat-parser)
-[![CircleCI branch](https://img.shields.io/circleci/project/github/adam-26/intl-messageformat-parser/master.svg)](https://circleci.com/gh/adam-26/intl-messageformat-parser/tree/master)
-[![Maintainability](https://api.codeclimate.com/v1/badges/ad62f24a1337d30759a1/maintainability)](https://codeclimate.com/github/adam-26/intl-messageformat-parser/maintainability)
-[![Test Coverage](https://api.codeclimate.com/v1/badges/ad62f24a1337d30759a1/test_coverage)](https://codeclimate.com/github/adam-26/intl-messageformat-parser/test_coverage)
+[![CircleCI branch](https://img.shields.io/circleci/project/github/adam-26/tag-messageformat-parser/master.svg)](https://circleci.com/gh/adam-26/tag-messageformat-parser/tree/master)
+[![Maintainability](https://api.codeclimate.com/v1/badges/7a31719342df75c9c81e/maintainability)](https://codeclimate.com/github/adam-26/tag-messageformat-parser/maintainability)
+[![Test Coverage](https://api.codeclimate.com/v1/badges/7a31719342df75c9c81e/test_coverage)](https://codeclimate.com/github/adam-26/tag-messageformat-parser/test_coverage)
 [![Conventional Commits](https://img.shields.io/badge/Conventional%20Commits-1.0.0-yellow.svg)](https://conventionalcommits.org)
+[![Sauce Test Status](https://saucelabs.com/buildstatus/YOUR_SAUCE_USERNAME)](https://saucelabs.com/u/YOUR_SAUCE_USERNAME)
 
 > This is a fork of [intl-messageformat-parser](https://github.com/yahoo/intl-messageformat-parser)
 
@@ -60,7 +61,7 @@ parser.parse('Welcome back <x:bold>{name}</x:bold>');
 Overview
 --------
 
-This package implements a parser in JavaScript that parses the industry standard [ICU Message strings][ICU] — used for internationalization — into an AST. The produced AST can then be used by a compiler, like [`intl-messageformat`][intl-mf], to produce localized formatted strings for display to users.
+This package implements a parser in JavaScript that parses the industry standard [ICU Message strings][ICU] — used for internationalization — into an AST. The produced AST can then be used by a compiler, like [`tag-messageformat`](https://github.com/adam-26/tag-messageformat), to produce localized formatted strings for display to users.
 
 This parser is written in [PEG.js][], a parser generator for JavaScript. This parser's implementation was inspired by and derived from Alex Sexton's [messageformat.js][] project. The differences from Alex's implementation are:
 
@@ -194,9 +195,15 @@ This parser will produce this AST:
 }
 ```
 
+Big Thanks
+-------
+
+Cross-browser Testing Platform and Open Source <3 Provided by [Sauce Labs][homepage]
 
 License
 -------
 
 This software is free to use under the Yahoo! Inc. BSD license.
-See the [LICENSE file][] for license text and copyright information.
+See the [LICENSE file](https://github.com/adam-26/tag-messageformat-parser/blob/master/LICENSE) for license text and copyright information.
+
+[homepage]: https://saucelabs.com

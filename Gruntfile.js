@@ -21,7 +21,7 @@ module.exports = function (grunt) {
             dest: 'dist/parser.js',
 
             options: {
-                namespace: 'IntlMessageFormatParser'
+                namespace: 'TagMessageFormatParser'
             }
         },
 
