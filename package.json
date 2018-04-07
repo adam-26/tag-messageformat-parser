@@ -2,12 +2,18 @@
   "name": "tag-messageformat-parser",
   "version": "2.2.2",
   "description": "Parses ICU Message strings into an AST via JavaScript.",
-  "main": "index.js",
-  "jsnext:main": "src/parser.js",
+  "main": "./lib/index.js",
+  "module": "./lib/index.es.js",
+  "jsnext:main": "./lib/index.es.js",
   "scripts": {
     "test": "istanbul cover -- _mocha test/unit/ --reporter spec",
     "test:ci": "istanbul cover -- _mocha test/unit/ --reporter xunit --reporter-options output=coverage/test-report.xml",
-    "prepublish": "grunt"
+    "prepublish": "grunt && npm run build",
+    "build:lib": "rollup -c rollup.config.lib.js",
+    "build:dist:dev": "cross-env NODE_ENV=development rollup -c rollup.config.dist.js",
+    "build:dist:prod": "cross-env NODE_ENV=production rollup -c rollup.config.dist.js",
+    "build:dist": "npm run build:dist:dev && npm run build:dist:prod",
+    "build": "npm run build:lib && npm run build:dist"
   },
   "repository": {
     "type": "git",
@@ -31,6 +37,7 @@
   },
   "homepage": "https://github.com/adam-26/tag-messageformat-parser",
   "devDependencies": {
+    "cross-env": "^5.1.4",
     "expect.js": "^0.3.1",
     "grunt": "^0.4.5",
     "grunt-benchmark": "^0.3.0",
@@ -41,6 +48,10 @@
     "grunt-peg": "^2.0.1",
     "istanbul": "^0.3.2",
     "mocha": "^2.0.1",
+    "rollup": "^0.57.1",
+    "rollup-plugin-filesize": "^1.5.0",
+    "rollup-plugin-replace": "^2.0.0",
+    "rollup-plugin-uglify": "^3.0.0",
     "standard-version": "^4.3.0",
     "xunit-file": "0.0.6"
   }

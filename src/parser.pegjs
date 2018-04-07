@@ -147,10 +147,10 @@ argumentElement
     }
 
 elementFormat
-    = element:(simpleFormat
-    / pluralFormat
+    = element:(pluralFormat
     / selectOrdinalFormat
-    / selectFormat) {
+    / selectFormat
+    / customFormat) {
       if (typeof element.options === 'undefined') {
         return { format: element };
       }
@@ -165,15 +165,6 @@ elementFormat
 	  }
 
       return { format: element, hasOther: hasOther };
-    }
-
-simpleFormat
-    = type:('number' / 'date' / 'time') _ style:(',' _ chars)? {
-        return {
-            type : type + 'Format',
-            style: style && style[2],
-            location: location()
-        };
     }
 
 pluralFormat
@@ -232,6 +223,28 @@ pluralStyle
             type   : 'pluralFormat',
             offset : offset,
             options: options,
+            location: location()
+        };
+    }
+
+customFormatName = chars:$([_a-zA-Z0-9]*) {
+    return chars;
+  }
+
+customFormatArgs = formatArgs:(',' _ a:argument _ {return a;})* {
+    if (!formatArgs) {
+        return [];
+    }
+
+    return formatArgs;
+  }
+
+customFormat
+    = _ name:(customFormatName) _ args:(customFormatArgs) {
+        return {
+        	type : 'customFormat',
+            formatName : name,
+            args: args,
             location: location()
         };
     }

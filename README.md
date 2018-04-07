@@ -78,7 +78,7 @@ Usage
 The `dist/` folder contains the version of this package for use in the browser, and it can be loaded and used like this:
 
 ```html
-<script src="tag-messageformat-parser/dist/parser.min.js"></script>
+<script src="tag-messageformat-parser/dist/tag-messageformat-parser.min.js"></script>
 <script>
     TagMessageFormatParser.parse('...');
 </script>
