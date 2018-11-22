@@ -1,6 +1,6 @@
 {
   "name": "tag-messageformat-parser",
-  "version": "2.2.2",
+  "version": "2.3.0",
   "description": "Parses ICU Message strings into an AST via JavaScript.",
   "main": "./lib/index.js",
   "module": "./lib/index.es.js",

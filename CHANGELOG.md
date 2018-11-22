@@ -2,6 +2,17 @@
 
 All notable changes to this project will be documented in this file. See [standard-version](https://github.com/conventional-changelog/standard-version) for commit guidelines.
 
+<a name="2.3.0"></a>
+# [2.3.0](https://github.com/adam-26/tag-messageformat-parser/compare/v2.2.2...v2.3.0) (2018-11-22)
+
+
+### Features
+
+* **code:** Support custom formatters ([144dab9](https://github.com/adam-26/tag-messageformat-parser/commit/144dab9))
+* **code:** Support custom formatters ([1483e59](https://github.com/adam-26/tag-messageformat-parser/commit/1483e59))
+
+
+
 <a name="2.2.2"></a>
 ## [2.2.2](https://github.com/adam-26/tag-messageformat-parser/compare/v2.2.1...v2.2.2) (2018-03-13)
 
