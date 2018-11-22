@@ -4,29 +4,7 @@ module.exports = function (grunt) {
     grunt.initConfig({
         clean: {
             dist: 'dist/',
-            lib : 'lib/',
-            tmp : 'tmp/'
-        },
-
-        copy: {
-            tmp: {
-                expand : true,
-                flatten: true,
-                src    : ['tmp/src/*.js', 'tmp/src/*.map'],
-                dest   : 'lib/'
-            }
-        },
-
-        bundle_jsnext: {
-            dest: 'dist/parser.js',
-
-            options: {
-                namespace: 'TagMessageFormatParser'
-            }
-        },
-
-        cjs_jsnext: {
-            dest: 'tmp/'
+            lib : 'lib/'
         },
 
         benchmark: {
@@ -50,12 +28,10 @@ module.exports = function (grunt) {
     });
 
     grunt.loadNpmTasks('grunt-contrib-clean');
-    grunt.loadNpmTasks('grunt-contrib-copy');
     grunt.loadNpmTasks('grunt-benchmark');
-    grunt.loadNpmTasks('grunt-bundle-jsnext-lib');
     grunt.loadNpmTasks('grunt-peg');
 
     grunt.registerTask('default', [
-        'clean', 'peg', 'bundle_jsnext', 'cjs_jsnext', 'copy'
+        'clean', 'peg'
     ]);
 };
